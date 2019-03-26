@@ -4,30 +4,52 @@ import numpy as np
 
 
 def get_hight(points_list):
-    h1 = math.sqrt((points_list[0][0] - points_list[3][0]) * (points_list[0][0] - points_list[3][0]) +
-                   (points_list[0][1] - points_list[3][1]) * (points_list[0][1] - points_list[3][1]))
-    h2 = math.sqrt((points_list[1][0] - points_list[2][0]) * (points_list[1][0] - points_list[2][0]) +
-                   (points_list[1][1] - points_list[2][1]) * (points_list[1][1] - points_list[2][1]))
+    tl = points_list[0]
+    tr = points_list[1]
+    br = points_list[2]
+    bl = points_list[3]
+    h1 = math.sqrt((tl[0] - bl[0]) ** 2 +
+                   (tl[1] - bl[1]) ** 2)
+    h2 = math.sqrt((tr[0] - br[0]) ** 2 +
+                   (tr[1] - br[1]) ** 2)
     return int(max(h1, h2))
 
 
 def get_width(points_list):
-    w1 = math.sqrt((points_list[0][0] - points_list[1][0]) * (points_list[0][0] - points_list[1][0]) +
-                   (points_list[0][1] - points_list[1][1]) * (points_list[0][1] - points_list[1][1]))
-    w2 = math.sqrt((points_list[2][0] - points_list[3][0]) * (points_list[2][0] - points_list[3][0]) +
-                   (points_list[2][1] - points_list[3][1]) * (points_list[2][1] - points_list[3][1]))
+    tl = points_list[0]
+    tr = points_list[1]
+    br = points_list[2]
+    bl = points_list[3]
+    w1 = math.sqrt((tl[0] - tr[0]) ** 2 +
+                   (tl[1] - tr[1]) ** 2)
+    w2 = math.sqrt((br[0] - bl[0]) ** 2 +
+                   (br[1] - bl[1]) ** 2)
     return int(max(w1, w2))
 
 
-if __name__ == '__main__':
+def perspectiveTrans(img, points_list):
+    for point in points_list:
+        cv2.circle(img, tuple(point), 1, (255, 185, 15), 10)
+    cv2.imwrite("points_type3.jpg", img)
+    # cv2.imshow("test", img)
+    # cv2.waitKey(0)
+    print(get_width(points_list))
+    print(get_hight(points_list))
+    pts1 = np.float32(points_list)
+    pts2 = np.float32([[0, 0], [get_width(points_list), 0], [get_width(points_list), get_hight(points_list)],
+                       [0, get_hight(points_list)]])
+    M = cv2.getPerspectiveTransform(pts1, pts2)
+    return cv2.warpPerspective(img, M, (get_width(points_list), get_hight(points_list)))
 
+
+if __name__ == '__main__':
     # image = cv2.imread("E://nju//projects//ODF//test1.jpg")
     # image = cv2.resize(image, (480, 360))
     # image = cv2.imread("test_2.jpg")
     # image = cv2.imread("E://nju//projects//ODF//type//type//type1.jpg")
     # image = cv2.imread("E://nju//projects//ODF//type//type//type2.jpg")
-    image = cv2.imread("E://nju//projects//ODF//type//type//type3.jpg")
-
+    # image = cv2.imread("E://nju//projects//ODF//type//type//type3.jpg")
+    image = cv2.imread('image/IMG_9064.JPG')
     img = image
     print(image.shape)
 
@@ -57,19 +79,7 @@ if __name__ == '__main__':
 
     points_list = [tl, tr, br, bl]
 
-    for point in points_list:
-        cv2.circle(img, tuple(point), 1, (255, 185, 15), 10)
-    cv2.imwrite("points_type3.jpg", img)
-    # cv2.imshow("test", img)
-    # cv2.waitKey(0)
-
-    print(get_width(points_list))
-    print(get_hight(points_list))
-    pts1 = np.float32(points_list)
-    pts2 = np.float32([[0, 0], [get_width(points_list), 0], [get_width(points_list), get_hight(points_list)],
-                       [0, get_hight(points_list)]])
-    M = cv2.getPerspectiveTransform(pts1, pts2)
-    dst = cv2.warpPerspective(img, M, (get_width(points_list), get_hight(points_list)))
+    dst = perspectiveTrans(img, points_list)
     cv2.imwrite("perspective_type3.jpg", dst)
     # cv2.imshow("test", dst)
     # cv2.waitKey(0)

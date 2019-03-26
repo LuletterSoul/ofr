@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import CalibrationUtil as cu
+import Perspective as pv
 
 
 def regOrientationBatch(img_dir):
@@ -76,5 +77,16 @@ def regOrientationBatch(img_dir):
         print("\n\n")
 
 
+def correct(img, pts):
+    dst = pv.perspectiveTrans(img, pts)
+    cv2.imshow("Correct Res", dst)
+    cv2.waitKey(0)
+
+
 if __name__ == '__main__':
-    regOrientationBatch('image')
+    # regOrientationBatch('image')
+    img = cv2.imread('image/IMG_9064.JPG')
+    img = cv2.resize(img, (0, 0), fx=0.2, fy=0.2)
+    _, pts = cu.select(img)
+    print(pts)
+    correct(img, pts)
