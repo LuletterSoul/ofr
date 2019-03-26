@@ -77,16 +77,27 @@ def regOrientationBatch(img_dir):
         print("\n\n")
 
 
-def correct(img, pts):
+def correctBatch(img_dir):
+    imgs = os.listdir(img_dir)
+    for src in imgs:
+        per_dir = img_dir + src
+        correct(per_dir, src)
+
+
+def correct(per_dir, src):
+    img = cv2.imread(per_dir)
+    img = cv2.resize(img, (0, 0), fx=0.2, fy=0.2)
+    _, pts = cu.select(img)
+    # print(pts)
     dst = pv.perspectiveTrans(img, pts)
-    cv2.imshow("Correct Res", dst)
-    cv2.waitKey(0)
+    if not dst:
+        return
+    filename, extension = os.path.splitext(src)
+    output_name = 'output/' + filename + '_cor' + extension
+    cv2.imwrite(output_name, dst)
 
 
 if __name__ == '__main__':
     # regOrientationBatch('image')
-    img = cv2.imread('image/IMG_9064.JPG')
-    img = cv2.resize(img, (0, 0), fx=0.2, fy=0.2)
-    _, pts = cu.select(img)
-    print(pts)
-    correct(img, pts)
+    img_dir = 'image/'
+    correctBatch(img_dir)

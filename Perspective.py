@@ -28,6 +28,9 @@ def get_width(points_list):
 
 
 def perspectiveTrans(img, points_list):
+    if len(points_list) != 4:
+        print("Points list len must be 4.")
+        return None
     for point in points_list:
         cv2.circle(img, tuple(point), 1, (255, 185, 15), 10)
     cv2.imwrite("points_type3.jpg", img)
@@ -76,9 +79,7 @@ if __name__ == '__main__':
     tr = [1998, 173]
     bl = [612, 3947]
     br = [1902, 3847]
-
     points_list = [tl, tr, br, bl]
-
     dst = perspectiveTrans(img, points_list)
     cv2.imwrite("perspective_type3.jpg", dst)
     # cv2.imshow("test", dst)
