@@ -3,6 +3,7 @@ import numpy as np
 import os
 import CalibrationUtil as cu
 import Perspective as pv
+import sys
 
 
 def regOrientationBatch(img_dir):
@@ -84,7 +85,7 @@ def correctBatch(img_dir):
         correct(per_dir, src)
 
 
-def correct(per_dir, src):
+def correct(per_dir, src, label_store_dir):
     img = cv2.imread(per_dir)
     img = cv2.resize(img, (0, 0), fx=0.2, fy=0.2)
     _, pts = cu.select(img)
@@ -92,6 +93,21 @@ def correct(per_dir, src):
     dst = pv.perspectiveTrans(img, pts)
     if not dst:
         return
+    rect, _ = cu.select(dst)
+    x, y, w, h = rect
+    if not os.path.exists(label_store_dir):
+        os.mkdir(label_store_dir)
+    len_lables = len(os.listdir(label_store_dir))
+    while True:
+        template = dst[x:x + w][y:y + h]
+        cv2.imshow('Template', template)
+        if cv2.waitKey(0) == 27:
+            break
+        if template is None:
+            raise TypeError("Template image cannot be empty.")
+
+        new_lable_dir = label_store_dir + '/' + len_lables + '_' + input()
+        cv2.imwrite()
     filename, extension = os.path.splitext(src)
     output_name = 'output/' + filename + '_cor' + extension
     cv2.imwrite(output_name, dst)
